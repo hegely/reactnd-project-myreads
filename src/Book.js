@@ -1,22 +1,43 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
+import * as BooksAPI from './BooksAPI'
 
 export default class Book extends Component {
 
+    async moveBook(book, to) {
+        await BooksAPI.update(book, to);
+
+        if (this.props.move) {
+            this.props.move(book, book.shelf, to);
+        } else if(this.props.refresh) {
+            this.props.refresh();
+        }
+
+        book.shelf = to;
+
+    }
+
     render() {
-        const {book} = this.props;
-        const {imageLinks} = this.props.book;
-        let image = imageLinks ? imageLinks.thumbnail : 'https://books.google.com/googlebooks/images/no_cover_thumb.gif';
-        image = image.replace("http://", "https://");
+
+        let authors = this.props.info.authors;
+        let actualShelf = this.props.info.shelf;
+
+        if (authors) {
+            authors = authors.join(', ');
+        } else {
+            authors = this.props.info.publisher;
+        }
+
+        if (!actualShelf) {
+            actualShelf = 'none';
+        }
+
         return (
             <div className="book">
                 <div className="book-top">
-                    <div className="book-cover" style={{
-                        width: 128,
-                        height: 193,
-                        backgroundImage: 'url('+image+')' }}/>
+                    <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url("${this.props.info.imageLinks.smallThumbnail}")` }}></div>
                     <div className="book-shelf-changer">
-                        <select onChange={(e) =>this.props.changeState(this.props.book,e.target.value)} defaultValue={book.shelf}>
-                            <option value="none" disabled>Move to...</option>
+                        <select value={actualShelf} onChange={(e) => { this.moveBook(this.props.info, e.target.value) }}>
+                            <option value="moveTo" disabled>Move to...</option>
                             <option value="currentlyReading">Currently Reading</option>
                             <option value="wantToRead">Want to Read</option>
                             <option value="read">Read</option>
@@ -24,8 +45,10 @@ export default class Book extends Component {
                         </select>
                     </div>
                 </div>
-                <div className="book-title">{book.title}</div>
-                <div className="book-authors">{Array.isArray(book.authors) ? book.authors.join(', '): ''}</div>
-            </div>);
+                <div className="book-title">{this.props.info.title}</div>
+                <div className="book-authors">{authors}</div>
+            </div>
+        );
     }
+
 }
