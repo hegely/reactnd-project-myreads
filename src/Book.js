@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
-import * as BooksAPI from './BooksAPI'
+import React, { PureComponent  } from 'react';
+import * as BooksAPI from './BooksAPI';
 
-export default class Book extends Component {
+export default class Book extends PureComponent  {
 
     async moveBook(book, to) {
         await BooksAPI.update(book, to);
@@ -18,8 +18,7 @@ export default class Book extends Component {
 
     render() {
 
-        let authors = this.props.info.authors;
-        let actualShelf = this.props.info.shelf;
+		let { authors, imageLinks, shelf: actualShelf } = this.props.info;
 
         if (authors) {
             authors = authors.join(', ');
@@ -31,10 +30,16 @@ export default class Book extends Component {
             actualShelf = 'none';
         }
 
+		let properties = { width: 128, height: 193 };
+		
+		if (typeof imageLinks !== 'undefined') {
+			properties.backgroundImage = `url("${imageLinks.thumbnail}")`;
+		}
+
         return (
             <div className="book">
                 <div className="book-top">
-                    <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url("${this.props.info.imageLinks.smallThumbnail}")` }}></div>
+                    <div className="book-cover" style={properties}></div>
                     <div className="book-shelf-changer">
                         <select value={actualShelf} onChange={(e) => { this.moveBook(this.props.info, e.target.value) }}>
                             <option value="moveTo" disabled>Move to...</option>

@@ -11,7 +11,7 @@ export default class Search extends Component {
     }
 
     async updateQuery(query) {
-        this.setState({ query: query });
+        this.setState({ query });
 
         if (query.trim()) {
             try {
